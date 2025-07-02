@@ -6,8 +6,6 @@ import (
 )
 
 func main() {
-	println("Hello, World!")
-
 	args := os.Args[1:]
 	if len(args) < 1 {
 		fmt.Println("no website provided")
@@ -22,5 +20,12 @@ func main() {
 
 	inputURL := args[0]
 	fmt.Printf("starting crawl of: %s\n", inputURL)
+	rawHTML, err := getHTML(inputURL)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(rawHTML)
 
 }
