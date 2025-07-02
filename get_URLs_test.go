@@ -15,33 +15,104 @@ func TestGetURLs(t *testing.T) {
 		errorContains string
 	}{
 		{
+			name:     "absolute URL",
+			inputURL: "https://blog.boot.dev",
+			inputBody: `
+			<html>
+				<body>
+					<a href="https://blog.boot.dev">
+						<span>Boot.dev</span>
+					</a>
+				</body>
+			</html>
+			`,
+			expected: []string{"https://blog.boot.dev"},
+		},
+		{
+			name:     "relative URL",
+			inputURL: "https://blog.boot.dev",
+			inputBody: `
+			<html>
+				<body>
+					<a href="/path/one">
+						<span>Boot.dev</span>
+					</a>
+				</body>
+			</html>
+			`,
+			expected: []string{"https://blog.boot.dev/path/one"},
+		},
+		{
 			name:     "absolute and relative URLs",
 			inputURL: "https://blog.boot.dev",
 			inputBody: `
-		<html>
-			<body>
-				<a href="/path/one">
-					<span>Boot.dev</span>
-				</a>
-				<a href="https://other.com/path/one">
-					<span>Boot.dev</span>
-				</a>
-			</body>
-		</html>
-		`,
+			<html>
+				<body>
+					<a href="/path/one">
+						<span>Boot.dev</span>
+					</a>
+					<a href="https://other.com/path/one">
+						<span>Boot.dev</span>
+					</a>
+				</body>
+			</html>
+			`,
 			expected: []string{"https://blog.boot.dev/path/one", "https://other.com/path/one"},
 		},
 		{
-			name:     "blank URLs",
+			name:     "no href",
 			inputURL: "https://blog.boot.dev",
 			inputBody: `
-		<html>
-			<body>
-				<p>This isn't a URL</p>
-			</body>
-		</html>
-		`,
-			expected: []string{""},
+			<html>
+				<body>
+					<a>
+						<span>Boot.dev></span>
+					</a>
+				</body>
+			</html>
+			`,
+			expected: nil,
+		},
+		{
+			name:     "bad HTML",
+			inputURL: "https://blog.boot.dev",
+			inputBody: `
+			<html body>
+				<a href="path/one">
+					<span>Boot.dev></span>
+				</a>
+			</html body>
+			`,
+			expected: []string{"https://blog.boot.dev/path/one"},
+		},
+		{
+			name:     "invalid href URL",
+			inputURL: "https://blog.boot.dev",
+			inputBody: `
+			<html>
+				<body>
+					<a href=":\\invalidURL">
+						<span>Boot.dev</span>
+					</a>
+				</body>
+			</html>
+			`,
+			expected: nil,
+		},
+		{
+			name:     "handle invalid base URL",
+			inputURL: `:\\invalidBaseURL`,
+			inputBody: `
+			<html>
+				<body>
+					<a href="/path">
+						<span>Boot.dev</span>
+					</a>
+				</body>
+			</html>
+			`,
+			expected:      nil,
+			errorContains: "couldnt parse raw base url",
 		},
 	}
 
@@ -60,7 +131,8 @@ func TestGetURLs(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(actual, tc.expected) {
-				t.Errorf("Test %v - %s FAIL: expected URL: %v, actual: %v", i, tc.name, tc.expected, actual)
+				t.Errorf("Test %v - '%s' FAIL: expected URLs %v, got URLs %v", i, tc.name, tc.expected, actual)
+				return
 			}
 		})
 	}
