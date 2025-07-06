@@ -6,14 +6,16 @@ import (
 )
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
-	// if len(cfg.pages) >= cfg.maxPages {
-	// 	return
-	// }
+
 	cfg.concControl <- struct{}{}
 	defer func() {
 		<-cfg.concControl
 		cfg.wg.Done()
 	}()
+
+	if len(cfg.pages) >= cfg.maxPages {
+		return
+	}
 
 	currentURL, err := url.Parse(rawCurrentURL)
 	if err != nil {
