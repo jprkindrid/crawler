@@ -27,19 +27,17 @@ func printReport(pages map[string]int, baseURL string) {
 
 func sortPages(pages map[string]int) []pageCountSorted {
 
-	var sortingStruct []pageCountSorted
+	var pagesCountSorted []pageCountSorted
 	for page, count := range pages {
-		sortingStruct = append(sortingStruct, pageCountSorted{page, count})
+		pagesCountSorted = append(pagesCountSorted, pageCountSorted{page, count})
 	}
 
-	sort.Slice(sortingStruct, func(i, j int) bool {
-		return sortingStruct[i].count > sortingStruct[j].count
+	sort.Slice(pagesCountSorted, func(i, j int) bool {
+		if pagesCountSorted[i].count == pagesCountSorted[j].count {
+			return pagesCountSorted[i].page < pagesCountSorted[j].page
+		}
+		return pagesCountSorted[i].count > pagesCountSorted[j].count
 	})
 
-	sortedPages := make(map[string]int)
-	for _, page := range sortingStruct {
-		sortedPages[page.page] = page.count
-	}
-
-	return sortingStruct
+	return pagesCountSorted
 }
