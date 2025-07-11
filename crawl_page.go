@@ -44,6 +44,11 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		return
 	}
 
+	err = writeBodyToText(normalizedCurrentURL, pageHTML)
+	if err != nil {
+		fmt.Printf("Error - bodyToText: %v", err)
+	}
+
 	pageURLs, err := getURLsFromHTML(pageHTML, cfg.baseURL)
 	if err != nil {
 		fmt.Printf("Error - crawlpage: couldn't get urls from html at %s: %v\n", rawCurrentURL, err)

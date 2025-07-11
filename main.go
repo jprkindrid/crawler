@@ -27,27 +27,24 @@ func main() {
 
 	inputURL := args[0]
 
-	var maxConcurrency int
-	var maxPages int
+	// Set defaults
+	maxConcurrency := 3
+	maxPages := 10
 
-	if args[1] == "" {
-		maxConcurrency = 3
-	} else {
-		i, err := strconv.Atoi(args[1])
-		if err != nil {
-			fmt.Println("Error getting maxConcurrency argument string")
+	if len(args) > 1 && args[1] != "" {
+		if i, err := strconv.Atoi(args[1]); err == nil {
+			maxConcurrency = i
+		} else {
+			fmt.Println("Error parsing maxConcurrency argument, using default:", maxConcurrency)
 		}
-		maxConcurrency = i
 	}
 
-	if args[2] == "" {
-		maxPages = 10
-	} else {
-		i, err := strconv.Atoi(args[2])
-		if err != nil {
-			fmt.Println("Error getting maxPages argument string")
+	if len(args) > 2 && args[2] != "" {
+		if i, err := strconv.Atoi(args[2]); err == nil {
+			maxPages = i
+		} else {
+			fmt.Println("Error parsing maxPages argument, using default:", maxPages)
 		}
-		maxPages = i
 	}
 
 	cfg, err := configure(inputURL, maxConcurrency, maxPages)
